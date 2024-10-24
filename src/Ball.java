@@ -43,6 +43,9 @@ class Ball {
         this.y = y;
         this.xSpeed = xspeed;
         this.ySpeed = yspeed;
+
+        fillColor = s.color(255, 100, 100);
+        borderColor = s.color(0, 0, 0);
     }
 
     // Accessors (getters) go here
