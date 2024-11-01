@@ -9,48 +9,76 @@ class Snowflake {
     private float xSpeed;
     /** The number of pixels the ball moves down per frame */
     private float ySpeed;
-    /** The color of the inside of the ball */
-    private int fillColor;
-    /** The color of the outside of the ball */
-    private int borderColor;
 
-    public Snowflake(Sketch sketch, int x, int y) {
+    public Snowflake(Sketch sketch) {
         s = sketch;
         radius = 20;
 
-        this.x = x;
-        this.y = y;
+        resetSnowflakePos();
 
         xSpeed = -0.5f;
         ySpeed = 2;
-        // fillColor = s.color(255, 255, 255);
-        // borderColor = s.color(255, 255, 255);
     }
 
+    /**
+     * Resets the snowflake's position to a random location above the screen
+     */
+    public void resetSnowflakePos() {
+        this.x = ((float) Math.random() * (s.width - 200)) + 100;
+        this.y = ((float) Math.random() * (s.height - 200)) + 100;
+
+        while (this.x < 0 || this.x > s.width) {
+            this.x = ((float) Math.random() * (s.width - 200)) + 100;
+        }
+
+        while (this.y < 0 || this.y > s.height) {
+            this.y = ((float) Math.random() * (s.height - 200)) + 100;
+        }
+    }
+
+    /**
+     * Resets the snowflake's position to a random location above the screen
+     */
+    public void resetSnowflakePos(int y) {
+        this.x = ((float) Math.random() * (s.width - 200)) + 100;
+        this.y = y;
+
+        while (this.x < 0 || this.x > s.width) {
+            this.x = ((float) Math.random() * (s.width - 200)) + 100;
+        }
+    }
+
+    /**
+     * Returns the radius of the snowflake
+     */
     public float getRadius() {
         return radius;
     }
 
+    /**
+     * Returns the diameter of the snowflake
+     */
     public float getDiameter() {
         return radius * 2;
     }
 
+    /**
+     * Returns the x position of the snowflake
+     */
     public float getX() {
         return x;
     }
 
+    /**
+     * Returns the y position of the snowflake
+     */
     public float getY() {
         return y;
     }
 
-    // Setters that you need go here - by default, only colors
-
-    // public void setColors(int fill, int border) {
-    //     borderColor = border;
-    //     fillColor = fill;
-    // }
-
-
+    /**
+     * Draws the snowflake in each frame
+     */
     public void draw() {
         s.stroke(s.color(255, 255, 255));
         s.line(x+radius,y,x-radius,y);
@@ -59,20 +87,20 @@ class Snowflake {
         s.line(x+radius*.707f,y-radius*.707f,x-radius*.707f,y+radius*.707f);
     }
 
+    /**
+     * Moves the snowflake in each frame
+     */
     public void move() {
         x = x + xSpeed;
         y = y + ySpeed;
 
-        if (y == s.height + (radius * 2)) {
-            y = radius; //-50;
+        if (y > (s.height + radius)) {
+            resetSnowflakePos(-50);
             //ySpeed = -2;
         }
 
         if (x > s.width - radius || x < radius) {
             xSpeed = -xSpeed;
         }
-        // if (y < radius) { // y > s.height - radius ||
-        //     ySpeed = -ySpeed;
-        // }
     }
 }

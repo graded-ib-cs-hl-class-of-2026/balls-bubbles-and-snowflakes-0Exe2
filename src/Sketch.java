@@ -1,29 +1,32 @@
 import processing.core.PApplet;
 
+/**
+ * For my program, I added several new features to the original code. I added
+ * - randomly generating snowflakes', balls', and bubbles' positions
+ * - randomly generating balls' colors (and associated method)
+ * - bubbles that burst when clicked (and associated method)
+ * - balls that freeze when hovered over (and associated attribute)
+ * - balls that bounce off of each other (and associated method) in addition
+ *   to distance calculations
+ * Code changes:
+ * - added all these objects on the screen to arrays to make code easier to manipulate
+ *   for all objects at the same time
+ */
 public class Sketch extends PApplet {
 
     /** Represents one ball */
-    private Ball ball1;
-    private Ball ball2;
-    private Ball ball3;
-    private Ball ball4;
+    private Ball[] ballsArray;
 
-    private Snowflake snowflake1;
-    private Snowflake snowflake2;
-    private Snowflake snowflake3;
-    private Snowflake snowflake4;
+    private Bubble[] bubblesArray;
 
-    private Bubble bubble1;
-    private Bubble bubble2;
-    private Bubble bubble3;
-    private Bubble bubble4;
+    private Snowflake[] snowflakesArray;
 
     /**
      * This method can only be used to change the window size. It runs before the
      * window is created.
      */
     public void settings() {
-        size(500, 500);
+        size(1000, 700);
     }
 
     /**
@@ -31,25 +34,30 @@ public class Sketch extends PApplet {
      * this to initialize the sketch.
      */
     public void setup() {
-        ball1 = new Ball(this, 15, 100, 100, -2f, 1f);
-        ball1.setColors(color(0, 255, 0), 0);
-        ball2 = new Ball(this, 30, 90, 60, -2f, 1f);
-        ball2.setColors(color(0, 0, 255), 0);
-        ball3 = new Ball(this, 45, 80, 90, -2f, 1f);
-        ball3.setColors(color(0, 255, 255), 0);
+        Ball ball1 = new Ball(this, 15, -2f, 1f);
+        Ball ball2 = new Ball(this, 30, -2f, 1f);
+        Ball ball3 = new Ball(this, 45, -2f, 1f);
+        Ball ball4 = new Ball(this, 37, -2f, 1f);
 
-        ball4 = new Ball(this, 37, 80, 400, -2f, 1f);
+        ballsArray = new Ball[] {ball1, ball2, ball3, ball4};
 
-        snowflake1 = new Snowflake(this, 50, 50);
-        snowflake2 = new Snowflake(this, 100, 100);
-        snowflake3 = new Snowflake(this, 200, 150);
-        snowflake4 = new Snowflake(this, 300, 200);
+        for (Ball ball : ballsArray) {
+            ball.randomizeColors();
+        }
 
+        Snowflake snowflake1 = new Snowflake(this);
+        Snowflake snowflake2 = new Snowflake(this);
+        Snowflake snowflake3 = new Snowflake(this);
+        Snowflake snowflake4 = new Snowflake(this);
 
-        bubble1 = new Bubble(this, 20);
-        bubble2 = new Bubble(this, 25);
-        bubble3 = new Bubble(this, 10);
-        bubble4 = new Bubble(this, 35);
+        snowflakesArray = new Snowflake[] {snowflake1, snowflake2, snowflake3, snowflake4};
+
+        Bubble bubble1 = new Bubble(this, 20);
+        Bubble bubble2 = new Bubble(this, 25);
+        Bubble bubble3 = new Bubble(this, 10);
+        Bubble bubble4 = new Bubble(this, 35);
+
+        bubblesArray = new Bubble[] {bubble1, bubble2, bubble3, bubble4};
     }
 
     /**
@@ -60,41 +68,73 @@ public class Sketch extends PApplet {
     public void draw() {
         background(180, 180, 255);
 
-        ball1.draw();
-        ball1.move();
+        for (Ball ball : ballsArray) {
+            ball.draw();
+            ball.move();
+        }
 
-        ball2.draw();
-        ball2.move();
+        // for each of the 4 balls, check if their radius collides with another ball
+        // if it does, bounce the balls away from each other
+        // make an array of balls
+        for (int i = 0; i < ballsArray.length; i++) {
+            for (int j = i + 1; j < ballsArray.length; j++) {
+                if (ballsArray[i].collidesWith(ballsArray[j])) {
+                    ballsArray[i].bounce(ballsArray[j]);
 
-        ball3.draw();
-        ball3.move();
+                    ballsArray[i].randomizeColors();
+                    ballsArray[j].randomizeColors();
+                }
+            }
+        }
 
-        ball4.draw();
-        ball4.move();
+        for (int i = 0; i < ballsArray.length; i++) {
+            for (int j = 0; j < ballsArray.length; j++) {
+                if (ballsArray[i].collidesWithBubble(bubblesArray[j])) {
+                    bubblesArray[j].burst();
+                }
+            }
+        }
 
-        snowflake1.draw();
-        snowflake1.move();
+        for (Bubble bubble : bubblesArray) {
+            bubble.draw();
+            bubble.move();
+        }
 
-        snowflake2.draw();
-        snowflake2.move();
+        for (Snowflake snowflake : snowflakesArray) {
+            snowflake.draw();
+            snowflake.move();
+        }
+    }
 
-        snowflake3.draw();
-        snowflake3.move();
+    /**
+     * Runs whenever the mouse is moved. Checks if cusor is on a ball to set it to
+     * frozen
+     */
+    public void mouseMoved() {
+        for (Ball ball : ballsArray) {
+            if (mouseX > ball.getX() - ball.getRadius() && mouseX < ball.getX() + ball.getRadius() && mouseY > ball.getY() - ball.getRadius() && mouseY < ball.getY() + ball.getRadius()) {
+                ball.setFrozen(true);
+            } else {
+                ball.setFrozen(false);
+            }
+        }
+    }
 
-        snowflake4.draw();
-        snowflake4.move();
+    /**
+     * burst bubble on click (needed to be pressed instead of clicked so..
+     * even would work after frame of click ends
+     * https://processing.org/reference/mouseClicked_.html
+     */
+    public void mousePressed() {
 
-        bubble1.draw();
-        bubble1.move();
-
-        bubble2.draw();
-        bubble2.move();
-
-        bubble3.draw();
-        bubble3.move();
-
-        bubble4.draw();
-        bubble4.move();
+        // https://www.w3schools.com/java/java_foreach_loop.asp for each loop
+        for (Bubble bubble : bubblesArray) {
+            // https://processing.org/reference/dist_.html dist method (distance between two points)
+            float distance = dist(mouseX, mouseY, bubble.getX(), bubble.getY());
+            if (distance - 5 <= bubble.getRadius()) { // dist - 5 gives a bit of error room
+                bubble.burst();
+            }
+        }
     }
 
     /** All processing sketches have to use this main method. Don't touch this! */
