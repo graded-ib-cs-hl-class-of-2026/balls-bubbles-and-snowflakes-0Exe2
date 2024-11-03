@@ -75,7 +75,6 @@ public class Sketch extends PApplet {
 
         // for each of the 4 balls, check if their radius collides with another ball
         // if it does, bounce the balls away from each other
-        // make an array of balls
         for (int i = 0; i < ballsArray.length; i++) {
             for (int j = i + 1; j < ballsArray.length; j++) {
                 if (ballsArray[i].collidesWith(ballsArray[j])) {
